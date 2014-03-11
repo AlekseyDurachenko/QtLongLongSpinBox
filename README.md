@@ -1,16 +1,14 @@
 QtLongLongSpinBox
 =================
 
-![Screenshot](https://raw.github.com/AlekseyDurachenko/QtLongLongSpinBox/master/qtlonglongspinbox.png)
-
 The spin box (linke QSpinBox) for qlonglong numbers:
+
+![Screenshot](https://raw.github.com/AlekseyDurachenko/QtLongLongSpinBox/master/qtlonglongspinbox.png)
 
 Usage
 =====
-# clone the repository:
-    git clone https://github.com/AlekseyDurachenko/QtLongLongSpinBox.git lib/qtlonglongspinbox
-# add to the .pro file:
-    include($$PWD/lib/qtlonglongspinbox/qtlonglongspinbox.pri)
+- clone the repository: git clone https://github.com/AlekseyDurachenko/QtLongLongSpinBox.git lib/qtlonglongspinbox
+- add the line to the .pro file: include($$PWD/lib/qtlonglongspinbox/qtlonglongspinbox.pri)
 
 Example
 =======
