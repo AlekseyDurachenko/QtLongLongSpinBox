@@ -1,28 +1,25 @@
 QtLongLongSpinBox
 =================
 
-The spin box (linke QSpinBox) for qlonglong numbers:
+The spin box (like QSpinBox) for qlonglong (64-bit signed integer) numbers:
 
-![Screenshot](https://raw.github.com/AlekseyDurachenko/QtLongLongSpinBox/master/qtlonglongspinbox.png)
-
-Usage
-=====
-- clone the repository: git clone https://github.com/AlekseyDurachenko/QtLongLongSpinBox.git lib/qtlonglongspinbox
-- add the line to the .pro file: include($$PWD/lib/qtlonglongspinbox/qtlonglongspinbox.pri)
+![Screenshot](doc/examples/simple/img/screenshot001.png)
 
 Example
 =======
-    #include <QApplication>
-    #include <QtLongLongSpinBox>
+```c++
+// main.cpp
+#include <QApplication>
+#include <QtLongLongSpinBox>
 
-    int main(int argc, char *argv[])
-    {
-        QApplication app(argc, argv);
+int main(int argc, char *argv[])
+{
+    QtLongLongSpinBox *widget = new QtLongLongSpinBox;
+    QObject::connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
+    widget->resize(200, 20);
+    widget->setValue(123456);
+    widget->show();
 
-        QtLongLongSpinBox widget;
-        widget.resize(200, 20);
-        widget.setValue(291834);
-        widget.show();
-
-        return app.exec();
-    }
+    return app.exec();
+}
+```

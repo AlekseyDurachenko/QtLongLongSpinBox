@@ -1,4 +1,4 @@
-# Copyright (C) 2014, Durachenko Aleksey V. <durachenko.aleksey@gmail.com>
+# Copyright 2014-2016, Durachenko Aleksey V. <durachenko.aleksey@gmail.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -13,45 +13,26 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-TARGET          = simple
 TEMPLATE        = app
-CONFIG         += console debug_and_release
-QT             += core gui
+TARGET          = simple
+CONFIG          += console debug_and_release
+QT              += core gui
 
-DESTDIR         = bin
-OBJECTS_DIR     = build/release_obj
-MOC_DIR         = build/release_moc
-UI_DIR          = build/release_ui
-RCC_DIR         = build/release_rcc
+# release build options
+release:DESTDIR     = bin
+release:OBJECTS_DIR = build/release/obj
+release:MOC_DIR     = build/release/moc
+release:RCC_DIR     = build/release/rcc
+release:UI_DIR      = build/release/ui
+# debug build options
+debug:DESTDIR       = bin
+debug:OBJECTS_DIR   = build/debug/obj
+debug:MOC_DIR       = build/debug/moc
+debug:RCC_DIR       = build/debug/rcc
+debug:UI_DIR        = build/debug/ui
+
+SOURCES        +=                                                   \
+    main.cpp                                                        \
 
 # library as sources
 include($$PWD/../../qtlonglongspinbox.pri)
-
-SOURCES        += main.cpp
-
-# debug
-build_pass:CONFIG(debug, debug|release) {
-    #TARGET      = $$join(TARGET,,,d)
-    #DESTDIR     = $$join(OBJECTS_DIR,,,d)
-    OBJECTS_DIR = $$join(OBJECTS_DIR,,,d)
-    MOC_DIR     = $$join(MOC_DIR,,,d)
-    UI_DIR      = $$join(UI_DIR,,,d)
-    RCC_DIR     = $$join(RCC_DIR,,,d)
-
-    win32 {
-    }
-
-    unix {
-        LIBS +=
-    }
-}
-
-# release
-build_pass:CONFIG(release, debug|release) {
-    win32 {
-    }
-
-    unix {
-        LIBS +=
-    }
-}

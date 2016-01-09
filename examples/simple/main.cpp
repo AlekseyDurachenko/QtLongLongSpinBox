@@ -1,4 +1,4 @@
-// Copyright (C) 2014, Durachenko Aleksey V. <durachenko.aleksey@gmail.com>
+// Copyright 2014-2016, Durachenko Aleksey V. <durachenko.aleksey@gmail.com>
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -16,14 +16,16 @@
 #include <QApplication>
 #include <QtLongLongSpinBox>
 
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QtLongLongSpinBox widget;
-    widget.resize(200, 20);
-    widget.setValue(291834);
-    widget.show();
+    QtLongLongSpinBox *widget = new QtLongLongSpinBox;   
+    QObject::connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
+    widget->resize(200, 20);
+    widget->setValue(123456);
+    widget->show();
 
     return app.exec();
 }

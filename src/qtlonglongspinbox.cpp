@@ -1,4 +1,4 @@
-// Copyright (C) 2014, Durachenko Aleksey V. <durachenko.aleksey@gmail.com>
+// Copyright 2014-2016, Durachenko Aleksey V. <durachenko.aleksey@gmail.com>
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -16,35 +16,66 @@
 #include "qtlonglongspinbox.h"
 #include <QLineEdit>
 #include <limits>
+#include <QEvent>
+#include <QKeyEvent>
+
 
 QtLongLongSpinBox::QtLongLongSpinBox(QWidget *parent) :
-        QAbstractSpinBox(parent)
+    QAbstractSpinBox(parent)
 {
-    m_value = 0;
     m_minimum = std::numeric_limits<qlonglong>::min();
     m_maximum = std::numeric_limits<qlonglong>::max();
+    m_value = 0;
     m_singleStep = 1;
-    updateEdit();
+
+    setValue(m_value);
 }
 
 qlonglong QtLongLongSpinBox::value() const
 {
-    return valueFromText(lineEdit()->text());
+    return m_value;
+}
+
+void QtLongLongSpinBox::setValue(qlonglong expectedNewValue)
+{
+    const qlonglong newValue = qBound(m_minimum, expectedNewValue, m_maximum);
+    const QString newValueString = QString::number(newValue);
+    lineEdit()->setText(m_prefix + newValueString + m_suffix);
+    if (m_value != newValue) {
+        m_value = newValue;
+
+        emit valueChanged(newValue);
+        emit valueChanged(newValueString);
+    }
+}
+
+QString QtLongLongSpinBox::prefix() const
+{
+    return m_prefix;
+}
+
+void QtLongLongSpinBox::setPrefix(const QString &prefix)
+{
+    m_prefix = prefix;
+
+    setValue(m_value);
+}
+
+QString QtLongLongSpinBox::suffix() const
+{
+    return m_suffix;
+}
+
+void QtLongLongSpinBox::setSuffix(const QString &suffix)
+{
+    m_suffix = suffix;
+
+    setValue(m_value);
 }
 
 QString QtLongLongSpinBox::cleanText() const
 {
-    return QString::number(valueFromText(lineEdit()->text()));
-}
-
-qlonglong QtLongLongSpinBox::minimum() const
-{
-    return m_minimum;
-}
-
-qlonglong QtLongLongSpinBox::maximum() const
-{
-    return m_maximum;
+    return QString::number(m_value);
 }
 
 qlonglong QtLongLongSpinBox::singleStep() const
@@ -52,154 +83,208 @@ qlonglong QtLongLongSpinBox::singleStep() const
     return m_singleStep;
 }
 
-const QString &QtLongLongSpinBox::prefix() const
-{
-    return m_prefix;
-}
-
-const QString &QtLongLongSpinBox::suffix() const
-{
-    return m_suffix;
-}
-
-void QtLongLongSpinBox::setMinimum(qlonglong min)
-{
-    m_minimum = min;
-    if (m_maximum < m_minimum) m_maximum = m_minimum;
-    setValue(value());
-}
-
-void QtLongLongSpinBox::setMaximum(qlonglong max)
-{
-    m_maximum = max;
-    if (m_maximum < m_minimum) m_maximum = m_minimum;
-    setValue(value());
-}
-
-void QtLongLongSpinBox::setRange(qlonglong min, qlonglong max)
-{
-    m_minimum = min;
-    m_maximum = max;
-    if (m_maximum < m_minimum) m_maximum = m_minimum;
-    setValue(value());
-}
-
-void QtLongLongSpinBox::setPrefix(const QString &prefix)
-{
-    m_prefix = prefix;
-    updateEdit();
-}
-
-void QtLongLongSpinBox::setSuffix(const QString &suffix)
-{
-    m_suffix = suffix;
-    updateEdit();
-}
-
 void QtLongLongSpinBox::setSingleStep(qlonglong step)
 {
     m_singleStep = step;
 }
 
-void QtLongLongSpinBox::setValue(qlonglong value)
+qlonglong QtLongLongSpinBox::minimum() const
 {
-    qint64 v = qBound(minimum(), value, maximum());
-    if (m_value != v)
-    {
-        m_value = v;
-        QString text = prefix() + textFromValue(v) + suffix();
-        lineEdit()->setText(text);
-        emit valueChanged(v);
-        emit valueChanged(text);
-    }
+    return m_minimum;
 }
 
-QValidator::State QtLongLongSpinBox::validate(QString &input, int &) const
+void QtLongLongSpinBox::setMinimum(qlonglong min)
 {
-    QString tmp = input;
-    if (!prefix().isEmpty() && tmp.startsWith(prefix()))
-    {
-        tmp.remove(0, prefix().size());
-    }
-    if (!suffix().isEmpty() && tmp.endsWith(suffix()))
-    {
-        tmp.chop(suffix().size());
+    m_minimum = min;
+    if (m_maximum < m_minimum) {
+        m_maximum = m_minimum;
     }
 
-    bool ok;
-    qlonglong value = tmp.toLongLong(&ok);
-    if (!ok || value < minimum() || value > maximum())
-    {
-        return QValidator::Invalid;
-    }
-    return QValidator::Acceptable;
+    setValue(m_value);
 }
 
-void QtLongLongSpinBox::fixup(QString &) const
+qlonglong QtLongLongSpinBox::maximum() const
 {
+    return m_maximum;
 }
 
-QString QtLongLongSpinBox::textFromValue(qlonglong value) const
+void QtLongLongSpinBox::setMaximum(qlonglong max)
 {
-    return QString::number(value);
+    m_maximum = max;
+    if (m_maximum < m_minimum) {
+        m_maximum = m_minimum;
+    }
+
+    setValue(m_value);
 }
 
-qlonglong QtLongLongSpinBox::valueFromText(const QString &text) const
+void QtLongLongSpinBox::setRange(qlonglong min, qlonglong max)
 {
-    QString tmp = text;
-    if (!prefix().isEmpty() && tmp.startsWith(prefix()))
-    {
-        tmp.remove(0, prefix().size());
+    if (min < max) {
+        m_minimum = min;
+        m_maximum = max;
     }
-    if (!suffix().isEmpty() && tmp.endsWith(suffix()))
-    {
-        tmp.chop(suffix().size());
+    else {
+        m_minimum = max;
+        m_maximum = min;
     }
 
-    return tmp.toLongLong();
+    setValue(m_value);
+}
+
+void QtLongLongSpinBox::keyPressEvent(QKeyEvent *event)
+{
+    switch (event->key()) {
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+        selectCleanText();
+        lineEditEditingFinalize();
+    }
+
+    QAbstractSpinBox::keyPressEvent(event);
+}
+
+void QtLongLongSpinBox::focusOutEvent(QFocusEvent *event)
+{
+    lineEditEditingFinalize();
+
+    QAbstractSpinBox::focusOutEvent(event);
 }
 
 QAbstractSpinBox::StepEnabled QtLongLongSpinBox::stepEnabled() const
 {
-    if (isReadOnly())
-    {
+    if (isReadOnly()) {
         return 0;
     }
 
-    if (wrapping())
-    {
-        return StepUpEnabled|StepDownEnabled;
-    }
-
     StepEnabled se = 0;
-    if (value() < maximum()) se |= StepUpEnabled;
-    if (value() > minimum()) se |= StepDownEnabled;
+    if (wrapping() || m_value < m_maximum) {
+        se |= StepUpEnabled;
+    }
+    if (wrapping() || m_value > m_minimum) {
+        se |= StepDownEnabled;
+    }
 
     return se;
 }
 
 void QtLongLongSpinBox::stepBy(int steps)
 {
-    if (isReadOnly())
-    {
+    if (isReadOnly()) {
         return;
     }
 
-    if (steps == 0)
-    {
-        return;
+    if (m_prefix + QString::number(m_value) + m_suffix != lineEdit()->text()) {
+        lineEditEditingFinalize();
     }
 
-    qlonglong v = value() + steps*singleStep();
-    // TODO:
-    //if (wrapping())
+    qlonglong newValue = m_value + (steps * m_singleStep);
+    if (wrapping()) {
+        // emulating the behavior of QSpinBox
+        if (newValue > m_maximum) {
+            if (m_value == m_maximum) {
+                newValue = m_minimum;
+            }
+            else {
+                newValue = m_maximum;
+            }
+        }
+        else if (newValue < m_minimum) {
+            if (m_value == m_minimum) {
+                newValue = m_maximum;
+            }
+            else {
+                newValue = m_minimum;
+            }
+        }
+    }
+    else {
+        newValue = qBound(m_minimum, newValue, m_maximum);
+    }
 
-    setValue(qBound(minimum(), v, maximum()));
-    selectAll();
+    setValue(newValue);
+    selectCleanText();
 }
 
-void QtLongLongSpinBox::updateEdit()
+QValidator::State QtLongLongSpinBox::validate(QString &input, int &pos) const
 {
-    QString text = prefix() + textFromValue(value()) + suffix();
-    lineEdit()->setText(text);
+    // first, we try to interpret as a number without prefixes
+    bool ok;
+    const qlonglong value = input.toLongLong(&ok);
+    if (input.isEmpty() || (ok && value <= m_maximum)) {
+        input = m_prefix + input + m_suffix;
+        pos += m_prefix.length();
+        return QValidator::Acceptable;
+    }
+
+    // if string of text editor aren't simple number, try to interpret it
+    // as a number with prefix and suffix
+    bool valid = true;
+    if (!m_prefix.isEmpty() && !input.startsWith(m_prefix)) {
+        valid = false;
+    }
+    if (!m_suffix.isEmpty() && !input.endsWith(m_suffix)) {
+        valid = false;
+    }
+
+    if (valid) {
+        const int start = m_prefix.length();
+        const int length = input.length() - start - m_suffix.length();
+
+        bool ok;
+        const QString number = input.mid(start, length);
+        const qlonglong value = number.toLongLong(&ok);
+        if (number.isEmpty() || (ok && value <= m_maximum)) {
+            return QValidator::Acceptable;
+        }
+    }
+
+    // otherwise not acceptable
+    return QValidator::Invalid;
+}
+
+void QtLongLongSpinBox::lineEditEditingFinalize()
+{
+    const QString text = lineEdit()->text();
+
+    // first, we try to read as a number without prefixes
+    bool ok;
+    qlonglong value = text.toLongLong(&ok);
+    if (ok) {
+        setValue(value);
+        return;
+    }
+
+    // if string of text editor aren't simple number, try to interpret it
+    // as a number with prefix and suffix
+    bool valid = true;
+    if (!m_prefix.isEmpty() && !text.startsWith(m_prefix)) {
+        valid = false;
+    }
+    else if (!m_suffix.isEmpty() && !text.endsWith(m_suffix)) {
+        valid = false;
+    }
+
+    if (valid) {
+        const int start = m_prefix.length();
+        const int length = text.length() - start - m_suffix.length();
+
+        bool ok;
+        const qlonglong value = text.mid(start, length).toLongLong(&ok);
+        if (ok) {
+            setValue(value);
+            return;
+        }
+    }
+
+    // otherwise set old value
+    setValue(m_value);
+}
+
+void QtLongLongSpinBox::selectCleanText()
+{
+    lineEdit()->setSelection(m_prefix.length(),
+                             lineEdit()->text().length()
+                             - m_prefix.length()
+                             - m_suffix.length());
 }

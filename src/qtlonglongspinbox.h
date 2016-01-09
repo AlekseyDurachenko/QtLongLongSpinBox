@@ -1,4 +1,4 @@
-// Copyright (C) 2014, Durachenko Aleksey V. <durachenko.aleksey@gmail.com>
+// Copyright 2014-2016, Durachenko Aleksey V. <durachenko.aleksey@gmail.com>
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,10 @@
 #ifndef QTLONGLONGSPINBOX_H
 #define QTLONGLONGSPINBOX_H
 
+
 #include <QAbstractSpinBox>
 #include <QtGlobal>
+
 
 class QtLongLongSpinBox : public QAbstractSpinBox
 {
@@ -26,19 +28,25 @@ public:
     explicit QtLongLongSpinBox(QWidget *parent = 0);
 
     qlonglong value() const;
-    QString	cleanText() const;
-    qlonglong minimum() const;
-    qlonglong maximum() const;
-    qlonglong singleStep() const;
-    const QString &prefix() const;
-    const QString &suffix() const;
 
-    void setMinimum(qlonglong min);
-    void setMaximum(qlonglong max);
-    void setRange(qlonglong min, qlonglong max);
+    QString prefix() const;
     void setPrefix(const QString &prefix);
+
+    QString suffix() const;
     void setSuffix(const QString &suffix);
-    void setSingleStep(qlonglong step);
+
+    QString cleanText() const;
+
+    qlonglong singleStep() const;
+    void setSingleStep(qlonglong val);
+
+    qlonglong minimum() const;
+    void setMinimum(qlonglong min);
+
+    qlonglong maximum() const;
+    void setMaximum(qlonglong max);
+
+    void setRange(qlonglong min, qlonglong max);
 
 public slots:
     void setValue(qlonglong value);
@@ -48,27 +56,27 @@ signals:
     void valueChanged(const QString &text);
 
 protected:
-    virtual QValidator::State validate(QString & input, int &pos) const;
-    virtual void fixup(QString &input) const;
-    virtual QString textFromValue(qlonglong value) const;
-    virtual qlonglong valueFromText(const QString &text) const;
-    virtual StepEnabled stepEnabled() const;
+    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void focusOutEvent(QFocusEvent *event);
     virtual void stepBy(int steps);
+    virtual StepEnabled stepEnabled() const;
+    virtual QValidator::State validate(QString & input, int &pos) const;
 
 private:
-    void updateEdit();
+    void lineEditEditingFinalize();
+    void selectCleanText();
 
 private:
-    qlonglong m_value;
-    qlonglong m_minimum;
-    qlonglong m_maximum;
-    qlonglong m_singleStep;
     QString m_prefix;
     QString m_suffix;
+    qlonglong m_singleStep;
+    qlonglong m_minimum;
+    qlonglong m_maximum;
+    qlonglong m_value;
 
 private:
     Q_DISABLE_COPY(QtLongLongSpinBox)
-
 };
+
 
 #endif // QTLONGLONGSPINBOX_H

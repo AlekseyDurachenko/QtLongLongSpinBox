@@ -12,4 +12,5 @@ OTHER_FILES    +=                                       \
     $$PWD/AUTHORS                                       \
     $$PWD/CHANGELOG                                     \
     $$PWD/LICENSE                                       \
+    $$PWD/LICENSE.LGPL-2.1+                             \
     $$PWD/README.md                                     \
